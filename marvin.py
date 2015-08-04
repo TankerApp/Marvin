@@ -1,17 +1,14 @@
 #/bin/python
-
 import sqlite3
-
-QUOTESFILE = "quotes.sqlite"
-
-
-
 import sys
 from random import random, randint, choice
 
+QUOTESFILE = "quotes.sqlite"
 
+# Set PROD to 0 to enable command line debug interface 
 PROD=1
 
+# Init db
 conn = sqlite3.connect(QUOTESFILE)
 c = conn.cursor()
 c.execute("CREATE TABLE IF NOT EXISTS quotes (id integer PRIMARY KEY, date text, answer boolean, who text, keyword text, value text)")
@@ -43,6 +40,10 @@ def AddString(phenny, nick, value, answer):
   idx = c.fetchone()[0]
   if (idx == None):
     idx = 0
+
+  value   = value.replace("'", "''");
+  keyword = keyword.replace("'", "''");
+  
   req = "INSERT INTO quotes (id, date, answer, who, keyword, value) VALUES (" + str(idx) + ", CURRENT_TIMESTAMP, " + str(answer) + ", '" + nick + "', '" + keyword + "', '" + value + "')"
   
   c.execute(req)
@@ -101,7 +102,8 @@ def Generate(phenny, nick, input, answer):
   for i in range(0, len(input)):
     if (i != 0):
       req += ", "
-    req += "'" + input[i] + "'"
+    inp   = input[i].replace("'", "''");
+    req += "'" + inp + "'"
   req += ")"
   
   conn = sqlite3.connect(QUOTESFILE)
@@ -128,13 +130,12 @@ def talk(phenny, input):
   
   if PROD:
     nick = input.nick
-    sss = input.replace("'", "''")
     input = input.split()
   else:
     nick = "Bob"
     
   # Marvin invoked, Marvin will reply
-  if ("Marvin" in input):
+  if (("Marvin" in input) or ("Marvin," in input) or ("Marvin;" in input)or ("Marvin." in input)or ("Marvin!" in input)):
     willspeak = True
 
   # Spontaneous intervention
