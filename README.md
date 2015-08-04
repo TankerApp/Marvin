@@ -74,4 +74,20 @@ Example:
     Marvin : I love you too Bob
 
 
+## Power user commands
 
+Additional commands are available :
+
+| Command      | Description                |
+|--------------|----------------------------|
+| Marvin DUMP  | List all registered quotes |
+| Marvin DEL x | Drop quote number x        |
+
+
+Switching to test mode:
+
+Edit marvin.py and change PROD to 0.
+
+You will then be able to invoke marvin using command line:
+
+    ./marvin.py How are you Marvin ?
