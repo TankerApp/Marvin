@@ -8,6 +8,7 @@ QUOTESFILE = "quotes.sqlite"
 # Set PROD to 0 to enable command line debug interface 
 PROD=1
 
+
 # Init db
 conn = sqlite3.connect(QUOTESFILE)
 c = conn.cursor()
@@ -94,6 +95,26 @@ def PickAny(answer):
   return reply
   
    
+def HasKnownKeywords(phenny, nick, input):
+  # Test if keywords
+  req = "SELECT value FROM quotes WHERE answer = 0 AND keyword IN (";
+  for i in range(0, len(input)):
+    if (i != 0):
+      req += ", "
+    inp   = input[i].replace("'", "''");
+    req += "'" + inp + "'"
+  req += ")"
+  conn = sqlite3.connect(QUOTESFILE)
+  c = conn.cursor()
+  all = c.execute(req)
+
+  ret = False
+  reply = c.fetchone()
+  if (reply != None):
+    ret = True
+  conn.commit()
+  conn.close()
+  return ret
 
 def Generate(phenny, nick, input, answer):
   
@@ -135,13 +156,16 @@ def talk(phenny, input):
     nick = "Bob"
     
   # Marvin invoked, Marvin will reply
-  if (("Marvin" in input) or ("Marvin," in input) or ("Marvin;" in input)or ("Marvin." in input)or ("Marvin!" in input)):
+  if (("Marvin" in input) or ("Marvin," in input) or ("Marvin;" in input) or ("Marvin." in input) or ("Marvin!" in input) or ("Marvin?" in input)):
     willspeak = True
 
   # Spontaneous intervention
   if (spontaneous == 0):
     willspeak = True
-    Speak(phenny, "Hum hum, j'ai un truc a dire..")
+
+  # If Marvin knows something about current topic, Marvin may talk
+  if ( (willspeak == False)  and (spontaneous < 7) and (HasKnownKeywords(phenny, nick, input)) ):
+    willspeak = True;
 
   if (".die" in input):
     Speak(phenny, ".die")
